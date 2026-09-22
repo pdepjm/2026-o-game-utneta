@@ -1,5 +1,6 @@
-### [Nombre del juego]
+### Plantas Vz Zombies by Temu 
 
-* Integrante 1
-* Integrante 2
-* Etc...
+* Gallini Guadalupe
+* Masaragian Ignacio
+* Torres Matias
+* [completar]
