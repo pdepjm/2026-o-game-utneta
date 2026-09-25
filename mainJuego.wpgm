@@ -1,0 +1,28 @@
+// mainJuego.wpgm
+import wollok.game.*
+import zombies.*
+import plantas.*
+
+program juego {
+  game.width(15)
+  game.height(6)
+  game.cellSize(50)
+  game.title("Plantas vs Zombies")
+
+  jardin.plantar()
+
+  const tickSpawn = game.tick(15000, { generadorDeZombies.generar() }, false)
+  tickSpawn.start()
+
+  const tickMovimientoZombies = game.tick(2000, { generadorDeZombies.moverTodos() }, false)
+  tickMovimientoZombies.start()
+
+  const tickDisparo = game.tick(1500, { jardin.dispararTodas() }, false)
+  tickDisparo.start()
+
+  const tickMovimientoBolitas = game.tick(300, { jardin.moverBolitas() }, false)
+  tickMovimientoBolitas.start()
+
+  game.start()
+}
+
