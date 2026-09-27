@@ -1,6 +1,6 @@
 import wollok.game.*
 import zombies.*
-import jardin.*
+import jardin.*   
 
 class Planta {
   var property position // posicion de la planta
@@ -27,6 +27,7 @@ class Planta {
 }
 
 class Bolita {
+  var viva = true
   var property nombre // nombre del proyectil para poder agregarle su imagen
   var property position // posicion del proyectil
   var property colisiono = false
@@ -38,17 +39,22 @@ class Bolita {
     tickMovimiento.start()
   }
 
-  method mover() { // controla el movimiento del proyectil
-    jardin.chequearColisiones(self)
-    position = position.right(1)
-    if (position.x() >= game.width()) {
-      self.morir()
+ method mover() {
+    if (viva) {
+      jardin.chequearColisiones(self)
+      position = position.right(1)
+      if (position.x() >= game.width()) {
+        self.morir()
+      }
     }
   }
 
-  method morir() { // para eliminar dicho proyectil
+method morir() {
+  if (viva) {
+    viva = false
     game.removeTickEvent(tickMovimiento)
-    jardin.bolitasActivas.remove(self)
+    jardin.bolitasActivas(jardin.bolitasActivas().filter { b => b != self })
     game.removeVisual(self)
   }
+}
 }
