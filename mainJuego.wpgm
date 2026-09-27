@@ -2,26 +2,20 @@
 import wollok.game.*
 import zombies.*
 import plantas.*
+import jardin.*
 
-program juego {
-  game.width(15)
+program PlantasVsZombies {
+  game.width(10)
   game.height(6)
-  game.cellSize(50)
-  game.title("Plantas vs Zombies")
+  game.cellSize(220)
 
   jardin.plantar()
 
-  const tickSpawn = game.tick(15000, { generadorDeZombies.generar() }, false)
+  const tickSpawn = game.tick(10000, { generadorDeZombies.generar() }, false)
   tickSpawn.start()
 
-  const tickMovimientoZombies = game.tick(2000, { generadorDeZombies.moverTodos() }, false)
-  tickMovimientoZombies.start()
-
-  const tickDisparo = game.tick(1500, { jardin.dispararTodas() }, false)
-  tickDisparo.start()
-
-  const tickMovimientoBolitas = game.tick(300, { jardin.moverBolitas() }, false)
-  tickMovimientoBolitas.start()
+  // const tickColisiones = game.tick(100, { jardin.chequearColisiones() },false)
+  // tickColisiones.start()
 
   game.start()
 }
