@@ -5,12 +5,13 @@ import jardin.*
 
 program PlantasVsZombies {
   game.width(12)
-  game.height(8)
+  game.height(9)
   game.cellSize(220)
-  
-  // keyboard.num1().onPressDo({game.onClickDo({casilla => jardin.plantar(casilla)})}) // al presionar 1 se planta una planta en la posicion del mouse
-  jardin.plantar(game.at(0,2)) // se planta una planta en la posicion (0,2) del tablero
-  const tickSpawn = game.tick(10000, { generadorDeZombies.generar() }, true)
+  game.boardGround("fondo.png") // fondo provisional para poder visualizar correctamente las casillas
+
+  keyboard.num1().onPressDo({game.onClickDo({casilla => jardin.plantar(casilla)})}) // al presionar 1 se planta una planta en la posicion del mouse
+  //jardin.plantar(game.at(0,2)) // se planta una planta en la posicion (0,2) del tablero
+  const tickSpawn = game.tick(10000, { generadorDeZombies.generar() }, false)
   tickSpawn.start()
 
   game.start()

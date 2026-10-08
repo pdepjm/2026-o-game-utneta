@@ -56,5 +56,6 @@ object generadorDeZombies {
 
   method eliminarZombie(unZombie) {
     zombiesActivos.remove(unZombie)
+    unZombie.morir()
   }
 }
