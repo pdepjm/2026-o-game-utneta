@@ -19,19 +19,22 @@ class Planta {
   
   method disparar() { // accion posible de la planta
     if (generadorDeZombies.hayZombies()) { // si hay zombie entonces la planta dispara
-      const nuevoProyectil = new Bolita(position = position.right(1), nombre = "guisante") // creamos el proyectil
-      jardin.agregarBolita(nuevoProyectil)  // lo añadimos a la lista de proyectiles activos
-      nuevoProyectil.iniciarMovimiento()  // inicializamos el movimiento del proyectil
-    }
+        const nuevoProyectil = new Bolita(position = position.right(1), nombre = "guisante") // creamos el proyectil
+        game.addVisual(nuevoProyectil) // agregamos la imagen del proyectil
+        game.onCollideDo(nuevoProyectil, {objeto => 
+          objeto.recibirDanio(nuevoProyectil.danio())
+          nuevoProyectil.morir()
+        })
+        nuevoProyectil.iniciarMovimiento()  // inicializamos el movimiento del proyectil
+      }
   }
 }
 
 class Bolita {
-  var viva = true
   var property nombre // nombre del proyectil para poder agregarle su imagen
   var property position // posicion del proyectil
-  var property colisiono = false
   const property danio = 25 // daño realizado por el proyectil
+  const property ralentizacion = 1 // cantidad de ralentizacion que realiza el proyectil al zombie
   const tickMovimiento = game.tick(600, {self.mover()}, false)
   method image() = nombre + ".png"
 
@@ -40,21 +43,14 @@ class Bolita {
   }
 
  method mover() {
-    if (viva) {
-      jardin.chequearColisiones(self)
       position = position.right(1)
       if (position.x() >= game.width()) {
         self.morir()
       }
-    }
   }
 
-method morir() {
-  if (viva) {
-    viva = false
+  method morir() {
     game.removeTickEvent(tickMovimiento)
-    jardin.bolitasActivas(jardin.bolitasActivas().filter { b => b != self })
     game.removeVisual(self)
   }
-}
 }

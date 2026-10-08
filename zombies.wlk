@@ -1,11 +1,13 @@
 // zombies.wlk
 import wollok.game.*
+import jardin.*
 
 class Zombie {
   var property nombre // para poder ponerle una imagen al crearlos
   var property position // posicion de cada zombie
   var property vida // cada zombie tiene su vida 
   var property velocidad // los zombies tienen velocidad propia (a mayor numero el zombie es más lento)
+  //var estaRalentizado = false // para saber si el zombie esta ralentizado o no
   const property danio = 10 // cada uno hace un danio distinto
   
   const tickMovimiento = game.tick(velocidad*1000, {self.mover()}, false) // el movimiento depende de la velocidad de cada zombie
@@ -20,8 +22,8 @@ class Zombie {
     }
   }
 
-  method recibirDanio(cantidad) {
-    vida -= cantidad
+  method recibirDanio(danioRecibido) {  // para recibir daño de los proyectiles
+    vida -= danioRecibido
     if (vida <= 0) {
       generadorDeZombies.eliminarZombie(self)
       self.morir()
