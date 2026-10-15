@@ -58,3 +58,32 @@ object generadorDeZombies {
     zombiesActivos.remove(unZombie)
   }
 }
+
+
+class ZombieCono inherits Zombie {
+
+  nombre = "ZombieCono",
+  vida = 200, //doble de vida que el normal
+  velocidad = 1
+
+}
+
+method generarZombieCono(){
+  const nuevoZombie = new ZombieCono (position = game.at(game.width() - 1, carril))
+  self.generar(nuevoZombie)
+}
+
+
+class ZombieConoDeportivo inherits Zombie {
+  
+  nombre = "ZombieConoDeportivo",
+  resistencia = 100,
+  vida = 80,
+  velocidad = 50
+}
+
+method generarZombieConoDeportivo(){
+  const nuevoZombie = new ZombieConoDeportivo (position = game.at(game.width() - 1, carril))
+  self.generar(nuevoZombie)
+}
+
