@@ -49,6 +49,34 @@ class Bolita {
       }
   }
 
+
+class Girasol inherits Planta {
+
+  override method hacerEfecto{
+    cont unSol = new Sol (position = position)
+    game.addVisual(unSol)
+  }
+}
+
+method plantarGirasol (position){
+  conts miGirasol = new Girasol(
+    position = position,
+    vida = 80,
+    velocidad = 5,
+    nombre = "Girasol"
+  )
+  game.addVisual(miGirasol)
+  miGirasol.iniciar()
+}
+
+class Nuez inherits Planta {
+  conts nuez = new Nuez(
+    vida = 1000
+  )
+  override method hacerEfecto (){
+    //solo aguanta golpes
+  }
+}
   method morir() {
     game.removeTickEvent(tickMovimiento)
     game.removeVisual(self)
