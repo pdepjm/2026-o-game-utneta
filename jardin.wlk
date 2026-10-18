@@ -16,5 +16,17 @@ object jardin {
         game.addVisual(nuevaPlanta) // se le agrega la imagen
         nuevaPlanta.iniciar()   // se inicializa el tick interno de la planta para que realize su accion caracteristica
     }
+
+    method perder(){
+        game.say(self, "Perdiste, un zombie llego a una planta")
+        game.schedule(2000, { => game.stop()})
+    }
+
+     method ganar(){
+        game.say(self, "Ganaste")
+        game.schedule(2000, { => game.stop()})
+    }
+
+
 }
 

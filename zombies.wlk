@@ -13,7 +13,14 @@ class Zombie {
   const tickMovimiento = game.tick(velocidad*1000, {self.mover()}, false) // el movimiento depende de la velocidad de cada zombie
 
   method image() = nombre + ".png"
-  method iniciar() {  tickMovimiento.start()  } // para iniciar el movimiento de los zombies a la hora de crearlos
+  method iniciar() { 
+     tickMovimiento.start() // para iniciar el movimiento de los zombies a la hora de crearlos 
+     game.whenCollideDo(self, { planta =>
+     if(planta.esUnaPlanta()) {
+      jardin.perder()
+     }
+     })
+      } 
   
   method mover() {
     position = position.left(1) // todos los zombies avanzan la misma cantidad de casillas
@@ -57,4 +64,44 @@ object generadorDeZombies {
   method eliminarZombie(unZombie) {
     zombiesActivos.remove(unZombie)
   }
+
+method generarZombieConCono(){
+const nuevoZombie = new ZombieConCono(
+  nombre = "zombieRapido", 
+  vida = 200,           // Doble de vida que el normal
+  velocidad = 1 ,     // Misma velocidad
+  position = game.at(game.width() - 1, carril)
+)
+ self.registrarYAgregar(nuevoZombie)
 }
+
+method generarZombieRapido(){
+const nuevoZombie = new ZombieRapido(
+  nombre = "zombieRapido", 
+  vida = 70,           // Tiene menos de vida
+  velocidad = 0.5 ,     // Al ser 0.5 segundos, avanza más rápido
+  position = game.at(game.width() - 1, carril)
+)
+ self.registrarYAgregar(nuevoZombie)
+}
+
+method registrarYAgregar(unZombie){
+  unZombie.iniciar()
+    zombiesActivos.add(unZombie)
+    game.addVisual(unZombie)
+}
+
+}
+
+
+class ZombieConCono inherits Zombie {
+  // Hereda las acciones de Zombie
+}
+
+
+
+class ZombieRapido inherits Zombie{
+  
+}
+
+
