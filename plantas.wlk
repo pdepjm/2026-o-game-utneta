@@ -90,10 +90,15 @@ class Bolita {
   }
 
   method mover() {
-    position = position.right(1)
+    const siguiente = position.right(1)
+    game.getObjectsIn(siguiente).copyWithout(self).forEach({ otro => if (viva) otro.recibirImpacto(self) })
+    if (viva){
+      position = siguiente
     if (position.x() >= game.width()) {
       self.morir()
     }
+    }
+    
   }
 
   // efecto sobre el zombie que impactó (las subclases pueden agregar efectos)

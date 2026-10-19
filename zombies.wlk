@@ -27,10 +27,17 @@ class Zombie {
   }
 
   method mover() {
-    position = position.left(1)
-    if (position.x() <= 0) {      // llegó al final del carril
+    const siguiente = position.left(1)
+    const planta = game.getObjectsIn(siguiente).findOrDefault({ o => o.esPlanta() }, null)
+    if (planta != null) {
+      planta.recibirDanio(danio) //queda atacando
+    } else{
+      position = siguiente
+      if (position.x() <= 0) {      // llegó al final del carril
       jardin.perder()
     }
+    }
+    
   }
 
   // Mensaje polimórfico: cualquier proyectil le dice al objeto con el que choca "recibirImpacto".
