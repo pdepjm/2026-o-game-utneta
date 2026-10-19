@@ -12,9 +12,8 @@ class Planta {
   var tickAccion =  null
   
   method iniciar() { 
-    game.tick(velocidad*1000, {accion.apply(self)} , false) // tiempo de cada planta en realizar su accion (depende unicamente de su velocidad)
-    tickAccion.start() 
-    } // utilizado al momento de crear la planta para inicializarla
+  tickAccion = game.onTick(velocidad * 1000, "accionPlanta", { self.accion() })
+    } 
 
   method recibirDanio(danio_recibido){  // para recibir daño de los zombies
     vida -= danio_recibido
@@ -69,12 +68,10 @@ class Bolita {
 }
 
 class Girasol inherits Planta {
-
   override method accion() {
     const unSol = new Sol (position = position)
     game.addVisual(unSol)
   }
-
 }
 method plantarGirasol (position) {
   const miGirasol = new Girasol(
