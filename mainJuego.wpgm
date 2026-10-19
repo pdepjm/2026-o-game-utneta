@@ -1,4 +1,3 @@
-// mainJuego.wpgm
 import wollok.game.*
 import zombies.*
 import jardin.*
@@ -7,12 +6,10 @@ program PlantasVsZombies {
   game.width(12)
   game.height(8)
   game.cellSize(220)
-  
-  // keyboard.num1().onPressDo({game.onClickDo({casilla => jardin.plantar(casilla)})}) // al presionar 1 se planta una planta en la posicion del mouse
-  jardin.plantar(game.at(0,2)) // se planta una planta en la posicion (0,2) del tablero
-  const tickSpawn = game.tick(10000, { generadorDeZombies.generar() }, true)
-  tickSpawn.start()
+  game.title("Plantas vs Zombies")
+
+  jardin.iniciar()                // plantas iniciales (una por carril)
+  generadorDeZombies.iniciar()    // empieza la oleada de zombies
 
   game.start()
 }
-
