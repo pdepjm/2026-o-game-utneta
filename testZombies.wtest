@@ -25,8 +25,9 @@ describe "Zombies" {
   }
 
   test "el daño se acumula entre golpes" {
-    zombie.recibirDanio(60)
+    zombie.recibirDanio(45)
     zombie.recibirDanio(40)
+    zombie.recibirDanio(10)  
     assert.notThat(zombie.estaVivo())
   }
 

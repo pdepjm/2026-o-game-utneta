@@ -1,0 +1,27 @@
+describe "Plantas"{
+    const planta = new Lanzaguisantes(position = game.at(0, 2))
+
+    method initialize() {
+        game.width(12)
+        game.height(9)
+        game.addVisual(planta)
+    }
+
+    test "una planta nueva está viva" {
+        assert.that(planta.estaViva())
+    }
+    test "una planta recibe daño y muere" {
+        planta.recibirDanio(100)
+        assert.notThat(planta.estaViva())
+    }
+    test "una planta recibe daño y sigue viva" {
+        planta.recibirDanio(50)
+        assert.that(planta.estaViva())
+    }
+    test "una planta recibe daño y muere con varios golpes" {
+        planta.recibirDanio(45)
+        planta.recibirDanio(40)
+        planta.recibirDanio(10)  
+        assert.notThat(planta.estaViva())
+    }
+}
