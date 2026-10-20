@@ -1,56 +1,123 @@
 import wollok.game.*
 import zombies.*
-import jardin.*   
+import jardin.*
+
+// ============================================================
+// PLANTAS
+// Planta (abstracta) -> Lanzador (abstracta) -> 3 plantas concretas.
+// Cada subclase solo redefine (override) lo que cambia.
+// ============================================================
 
 class Planta {
-  var property position // posicion de la planta
-  var property vida // vida de la planta
-  var property velocidad  // tiempo en realizar su accion caracteristica
-  var property nombre // nombre de la planta (utilizado para agregarle una imagen)
-  const accion // accion a realizar
-  method image() = nombre + ".png"  // imagen
-  const tickAccion = game.tick(velocidad*1000, {accion.apply(self)} , false) // tiempo de cada planta en realizar su accion (depende unicamente de su velocidad)
-  
-  method iniciar() { tickAccion.start() } // utilizado al momento de crear la planta para inicializarla
+  var property position
+  var vida
+  const property nombre
+  const msEntreAcciones
+  const idTick = "accionPlanta" + self.identity()
 
-  method recibirDanio(danio_recibido){  // para recibir daño de los zombies
-    vida -= danio_recibido
+  method image() = nombre + ".png"
+
+  method iniciar() {
+    game.onTick(msEntreAcciones, idTick, { self.accion() })
   }
-  
-  method disparar() { // accion posible de la planta
-    if (generadorDeZombies.hayZombies()) { // si hay zombie entonces la planta dispara
-        const nuevoProyectil = new Bolita(position = position.right(1), nombre = "guisante") // creamos el proyectil
-        game.addVisual(nuevoProyectil) // agregamos la imagen del proyectil
-        game.onCollideDo(nuevoProyectil, {objeto => 
-          objeto.recibirDanio(nuevoProyectil.danio())
-          nuevoProyectil.morir()
-        })
-        nuevoProyectil.iniciarMovimiento()  // inicializamos el movimiento del proyectil
-      }
+
+  method accion()   // abstracto: cada planta decide qué hace
+
+  // las plantas ignoran las bolitas (polimorfismo con Zombie)
+  method recibirImpacto(proyectil) {}
+
+  method recibirDanio(cantidad) {
+    vida -= cantidad
   }
 }
 
+// Plantas que disparan proyectiles por su carril
+class Lanzador inherits Planta {
+  method crearProyectil(posicion)   // abstracto: cada lanzador decide qué proyectil crea
+
+  method lanzar(posicion) {
+    const proyectil = self.crearProyectil(posicion)
+    game.addVisual(proyectil)
+    proyectil.iniciarMovimiento()
+  }
+
+  method disparar() {
+    self.lanzar(position.right(1))
+  }
+
+  override method accion() {
+    if (generadorDeZombies.hayZombiesEnCarril(position.y())) {   // solo dispara si hay zombies en SU carril
+      self.disparar()
+    }
+  }
+}
+
+class Lanzaguisantes inherits Lanzador(nombre = "lanzaguisantes", vida = 100, msEntreAcciones = 2000) {
+  override method crearProyectil(posicion) = new Bolita(position = posicion)
+}
+
+class LanzaguisantesHielo inherits Lanzador(nombre = "lanzaguisanteDeHielo", vida = 100, msEntreAcciones = 2000) {
+  override method crearProyectil(posicion) = new BolitaHielo(position = posicion)
+}
+
+class LanzaguisantesDoble inherits Lanzador(nombre = "lanzaguisantes", vida = 100, msEntreAcciones = 3000) {  // TODO imagen propia: "lanzaguisantesDoble"
+  override method crearProyectil(posicion) = new Bolita(position = posicion)
+
+  // dispara una bolita adelante y otra pegada atrás (una celda detrás de la primera)
+  override method disparar() {
+    super()
+    self.lanzar(position)
+  }
+}
+
+// ============================================================
+// PROYECTILES
+// ============================================================
+
 class Bolita {
-  var property nombre // nombre del proyectil para poder agregarle su imagen
-  var property position // posicion del proyectil
-  const property danio = 25 // daño realizado por el proyectil
-  const property ralentizacion = 1 // cantidad de ralentizacion que realiza el proyectil al zombie
-  const tickMovimiento = game.tick(600, {self.mover()}, false)
-  method image() = nombre + ".png"
+  var property position
+  var viva = true
+  const idTick = "movimientoBolita" + self.identity()   // id único por bolita
 
-  method iniciarMovimiento(){
-    tickMovimiento.start()
+  method nombre() = "guisante"
+  method danio() = 25
+  method image() = self.nombre() + ".png"
+  method estaViva() = viva
+
+  method iniciarMovimiento() {
+    game.onTick(400, idTick, { self.mover() })
+    game.onCollideDo(self, { otro => otro.recibirImpacto(self) })
   }
 
- method mover() {
-      position = position.right(1)
-      if (position.x() >= game.width()) {
-        self.morir()
-      }
+  method mover() {
+    position = position.right(1)
+    if (position.x() >= game.width()) {
+      self.morir()
+    }
   }
+
+  // efecto sobre el zombie que impactó (las subclases pueden agregar efectos)
+  method impactar(zombie) {
+    zombie.recibirDanio(self.danio())
+  }
+
+  // dos bolitas en la misma celda no se afectan
+  method recibirImpacto(otraBolita) {}
 
   method morir() {
-    game.removeTickEvent(tickMovimiento)
-    game.removeVisual(self)
+    if (viva) {
+      viva = false
+      game.removeTickEvent(idTick)
+      game.removeVisual(self)
+    }
+  }
+}
+
+class BolitaHielo inherits Bolita {
+  override method nombre() = "guisanteDeHielo"
+
+  override method impactar(zombie) {
+    super(zombie)
+    zombie.ralentizar()
   }
 }

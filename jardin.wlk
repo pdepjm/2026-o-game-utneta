@@ -3,24 +3,49 @@ import zombies.*
 import wollok.game.*
 
 object jardin {
-    var property plantasActivas = []
+  const property carriles = [1, 2, 3]   // filas (y) por las que avanzan los zombies
+  const plantasActivas = []
+  var terminada = false
 
-    method ubicacionLibre(posicion) { // Esta libre si no hay ninguna planta en esa misma posición
-    return not plantasActivas.any({ planta => planta.position() == posicion })
-    }
+  method plantar(unaPlanta) {
+    plantasActivas.add(unaPlanta)
+    game.addVisual(unaPlanta)
+    unaPlanta.iniciar()
+  }
 
-    method plantar(posicion) {
-        if(self.ubicacionLibre(posicion)) {
-            const nuevaPlanta = new Planta(
-            nombre ="lanzaguisantes",   // nombre de la planta (utilizado para ponerle la imagen)
-            position = posicion,   // posicion de la planta
-            vida = 100, // vida total de la planta
-            velocidad = 2, // realizara la accion cada 2 segundo
-            accion = {unaPlanta => unaPlanta.disparar()}) // podemos elegir la accion que realizara la planta
-            plantasActivas.add(nuevaPlanta) // se la agrega a la lista de plantas que tiene el jardin
-            game.addVisual(nuevaPlanta) // se le agrega la imagen
-            nuevaPlanta.iniciar()   // se inicializa el tick interno de la planta para que realize su accion caracteristica
-        }
+  // arma el jardín inicial: una planta distinta en cada carril, en la primera columna
+  method iniciar() {
+    self.plantar(new Lanzaguisantes(position = game.at(0, carriles.get(0))))
+    self.plantar(new LanzaguisantesHielo(position = game.at(0, carriles.get(1))))
+    self.plantar(new LanzaguisantesDoble(position = game.at(0, carriles.get(2))))
+  }
+
+  method ganar() {
+    self.terminar("¡GANASTE!", "009933FF")
+  }
+
+  method perder() {
+    self.terminar("PERDISTE", "FF0000FF")
+  }
+
+  method terminar(mensaje, color) {
+    if (!terminada) {     // varios zombies pueden llegar a la vez
+      terminada = true
+      game.clear()        // saca todos los visuales y frena todos los ticks/colisiones
+      cartelFinal.mostrar(mensaje, color)
     }
+  }
 }
 
+object cartelFinal {
+  var property text = ""
+  var property textColor = "000000FF"
+
+  method position() = game.center()
+
+  method mostrar(mensaje, color) {
+    text = mensaje
+    textColor = color
+    game.addVisual(self)
+  }
+}
