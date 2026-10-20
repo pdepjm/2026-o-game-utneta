@@ -1,0 +1,120 @@
+import wollok.game.*
+import plantas.*
+import zombies.*
+import jardin.*
+
+// En los tests el tablero arranca en 5x5 (no se ejecuta mainJuego),
+// por eso en cada describe lo dejamos del mismo tamaño que el juego.
+
+describe "zombies y bolitas" {
+  const zombie = new ZombieNormal(position = game.at(5, 1))
+
+  method initialize() {
+    game.width(12)
+    game.height(8)
+    game.addVisual(zombie)
+  }
+
+  // le pega al zombie como si le hubieran llegado esa cantidad de guisantes
+  method dispararGuisantes(unZombie, cantidad) {
+    cantidad.times({ i => unZombie.recibirImpacto(new Bolita(position = unZombie.position())) })
+  }
+
+  test "un zombie normal muere con 4 guisantes" {
+    self.dispararGuisantes(zombie, 3)
+    assert.that(zombie.estaVivo())
+    self.dispararGuisantes(zombie, 1)
+    assert.notThat(zombie.estaVivo())
+  }
+
+  test "un zombie tanque aguanta más guisantes que uno normal" {
+    const tanque = new ZombieTanque(position = game.at(5, 2))
+    game.addVisual(tanque)
+    self.dispararGuisantes(zombie, 4)
+    self.dispararGuisantes(tanque, 4)
+    assert.notThat(zombie.estaVivo())
+    assert.that(tanque.estaVivo())
+  }
+
+  test "una bolita desaparece cuando choca con un zombie" {
+    const bolita = new Bolita(position = game.at(4, 1))
+    game.addVisual(bolita)
+    bolita.iniciarMovimiento()
+    game.flushEvents(400)   // primer tick: la bolita pasa a la celda del zombie
+    assert.notThat(bolita.estaViva())
+    assert.notThat(game.hasVisual(bolita))
+  }
+
+  test "una planta ignora las bolitas que le pasan por encima" {
+    const planta = new Lanzaguisantes(position = game.at(0, 2))
+    const bolita = new Bolita(position = game.at(0, 2))
+    planta.recibirImpacto(bolita)
+    assert.that(bolita.estaViva())
+  }
+
+  test "la bolita de hielo también hace daño" {
+    const rapido = new ZombieRapido(position = game.at(5, 2))   // tiene 50 de vida
+    game.addVisual(rapido)
+    rapido.recibirImpacto(new BolitaHielo(position = rapido.position()))
+    rapido.recibirImpacto(new BolitaHielo(position = rapido.position()))
+    assert.notThat(rapido.estaVivo())
+  }
+
+  test "la bolita de hielo hace que el zombie camine más lento" {
+    zombie.iniciar()
+    zombie.recibirImpacto(new BolitaHielo(position = zombie.position()))
+    game.flushEvents(1000)   // a este tiempo un zombie normal ya hubiera dado un paso
+    assert.equals(game.at(5, 1), zombie.position())
+    game.flushEvents(2000)
+    assert.equals(game.at(4, 1), zombie.position())
+  }
+}
+
+describe "plantas" {
+  method initialize() {
+    game.width(12)
+    game.height(8)
+    // un zombie en el carril 2: lo anotamos en el generador pero no lo agregamos al tablero,
+    // así los únicos visuales que aparecen son las bolitas que disparan las plantas
+    generadorDeZombies.zombiesActivos().add(new ZombieNormal(position = game.at(8, 2)))
+  }
+
+  test "un lanzaguisantes dispara si hay un zombie en su carril" {
+    const planta = new Lanzaguisantes(position = game.at(0, 2))
+    planta.accion()
+    assert.equals(1, game.allVisuals().size())
+  }
+
+  test "un lanzaguisantes no dispara si el zombie está en otro carril" {
+    const planta = new Lanzaguisantes(position = game.at(0, 1))
+    planta.accion()
+    assert.that(game.allVisuals().isEmpty())
+  }
+
+  test "el lanzaguisantes doble dispara dos bolitas" {
+    const planta = new LanzaguisantesDoble(position = game.at(0, 2))
+    planta.accion()
+    assert.equals(2, game.allVisuals().size())
+  }
+}
+
+describe "fin del juego" {
+  method initialize() {
+    game.width(12)
+    game.height(8)
+  }
+
+  test "si un zombie llega a la primera columna se pierde" {
+    const zombie = new ZombieNormal(position = game.at(1, 1))
+    game.addVisual(zombie)
+    zombie.mover()
+    assert.equals("PERDISTE", cartelFinal.text())
+  }
+
+  test "al eliminar a todos los zombies de la oleada se gana" {
+    12.times({ i => generadorDeZombies.generar() })   // la oleada es de 12 zombies
+    // copy() porque cada zombie que muere se saca de la lista que estamos recorriendo
+    generadorDeZombies.zombiesActivos().copy().forEach({ zombie => zombie.morir() })
+    assert.equals("¡GANASTE!", cartelFinal.text())
+  }
+}
