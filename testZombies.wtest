@@ -1,0 +1,74 @@
+import zombies.*
+import jardin.*
+
+describe "Zombies" {
+  const zombie = new ZombieNormal(position = game.at(5, 2))
+
+  method initialize() {
+    game.width(12)
+    game.height(9)
+    game.addVisual(zombie)
+  }
+
+  test "un zombie nuevo está vivo" {
+    assert.that(zombie.estaVivo())
+  }
+
+  test "recibir daño sin llegar a 0 no lo mata" {
+    zombie.recibirDanio(50)
+    assert.that(zombie.estaVivo())
+  }
+
+  test "muere cuando la vida llega a 0" {
+    zombie.recibirDanio(100)
+    assert.notThat(zombie.estaVivo())
+  }
+
+  test "el daño se acumula entre golpes" {
+    zombie.recibirDanio(60)
+    zombie.recibirDanio(40)
+    assert.notThat(zombie.estaVivo())
+  }
+
+  test "el tanque aguanta lo que mataría a un normal" {
+    const tanque = new ZombieTanque(position = game.at(5, 1))
+    game.addVisual(tanque)
+    tanque.recibirDanio(100)
+    assert.that(tanque.estaVivo())
+  }
+
+  test "ralentizar duplica el tiempo entre pasos" {
+    zombie.iniciar()
+    zombie.ralentizar() // velocidad base del zombie normal: 1000 ms entre pasos
+    assert.equals(2000, zombie.msPorPaso()) // compara si su nueva velocidad es el doble de lenta de la original
+  }
+
+  test "ralentizar dos veces no lo frena más de una vez" {
+    zombie.iniciar()
+    zombie.ralentizar() // velocidad base del zombie normal: 1000 ms entre pasos
+    zombie.ralentizar() // no debería cambiar nada, porque ya estaba ralentizado
+    assert.equals(2000, zombie.msPorPaso()) // compara si su nueva velocidad es el doble de lenta de la original
+  }
+
+  test "llegar al final del carril hace perder" {
+    const cerca = new ZombieNormal(position = game.at(1, 2))
+    game.addVisual(cerca)
+    cerca.mover()          // queda en x = 0
+    assert.that(jardin.terminada())  // el juego debería terminar
+  }
+
+  test "si hay un zombie vivo no se gana el juego"{
+    generadorDeZombies.generados(11)  // queda 1 zombie por generar
+    generadorDeZombies.generar()  // crea un zombie, por lo que finalizo la oleada
+    zombie.morir()                // matamos 1 zombie de los 2 que hay
+    assert.notThat(jardin.terminada())  // el juego no deberia de terminar
+  }
+
+  test "si se matan a todos los zombies se gana el juego"{
+    generadorDeZombies.generados(11)  // queda 1 zombie por generar
+    generadorDeZombies.generar()  // crea el ultimo zombie de la oleada
+    zombie.morir()                // matamos 1 zombie de los 2 que hay
+    generadorDeZombies.zombieEliminado(generadorDeZombies.zombiesActivos().get(0)) // matamos al otro zombie
+    assert.that(jardin.terminada())  // el juego deberia de terminar
+  }
+}

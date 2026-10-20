@@ -5,7 +5,7 @@ import wollok.game.*
 object jardin {
   const property carriles = [1, 2, 3]   // filas (y) por las que avanzan los zombies
   const plantasActivas = []
-  var terminada = false
+  var property terminada = false
 
   method plantar(unaPlanta) {
     plantasActivas.add(unaPlanta)
@@ -21,31 +21,25 @@ object jardin {
   }
 
   method ganar() {
-    self.terminar("¡GANASTE!", "009933FF")
+    self.terminar()
+    cartelFinal.nombre("ganaste")
   }
 
   method perder() {
-    self.terminar("PERDISTE", "FF0000FF")
+    self.terminar()
+    cartelFinal.nombre("perdiste")
   }
 
-  method terminar(mensaje, color) {
+  method terminar() {
     if (!terminada) {     // varios zombies pueden llegar a la vez
       terminada = true
       game.clear()        // saca todos los visuales y frena todos los ticks/colisiones
-      cartelFinal.mostrar(mensaje, color)
+      game.addVisual(cartelFinal)
     }
   }
 }
-
 object cartelFinal {
-  var property text = ""
-  var property textColor = "000000FF"
-
   method position() = game.center()
-
-  method mostrar(mensaje, color) {
-    text = mensaje
-    textColor = color
-    game.addVisual(self)
-  }
+  var property nombre = ""
+  method image() = nombre +".png"
 }

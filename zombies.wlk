@@ -12,7 +12,7 @@ class Zombie {
   var property position
   const property nombre         // para la imagen: nombre + ".png"
   var vida
-  var msPorPaso                 // milisegundos entre paso y paso (más alto = más lento)
+  var property msPorPaso                 // milisegundos entre paso y paso (más alto = más lento)
   var ralentizado = false
   var vivo = true
   const property danio = 10     // todavía sin usar (para cuando los zombies ataquen)
@@ -73,7 +73,7 @@ class Zombie {
 class ZombieNormal inherits Zombie(nombre = "zombie", vida = 100, msPorPaso = 1000) {}
 
 // Lento pero con mucha vida
-class ZombieTanque inherits Zombie(nombre = "zombie", vida = 300, msPorPaso = 2000) {}  // TODO imagen propia: "zombieTanque"
+class ZombieTanque inherits Zombie(nombre = "zombieCono", vida = 300, msPorPaso = 2000) {}  // TODO imagen propia: "zombieTanque"
 
 // Muy rápido pero con poca vida
 class ZombieRapido inherits Zombie(nombre = "zombie", vida = 50, msPorPaso = 500) {}    // TODO imagen propia: "zombieRapido"
@@ -86,7 +86,7 @@ object generadorDeZombies {
   const property zombiesActivos = []
   const totalAGenerar = 12        // tamaño de la oleada: al matarlos a todos se gana
   const msEntreZombies = 5000
-  var generados = 0
+  var property generados = 0
 
   // cada "fábrica" sabe crear un tipo de zombie en la posición que le pasen
   const fabricas = [
