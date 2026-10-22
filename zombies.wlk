@@ -29,7 +29,7 @@ class Zombie {
   method mover() {
     position = position.left(1)
     if (position.x() <= 0) {      // llegó al final del carril
-      jardin.perder()
+      jardin.cambiarEstado(derrota)
     }
   }
 
@@ -70,14 +70,6 @@ class Zombie {
   }
 }
 
-class ZombieNormal inherits Zombie(nombre = "zombie", vida = 100, msPorPaso = 1000) {}
-
-// Lento pero con mucha vida
-class ZombieTanque inherits Zombie(nombre = "zombieCono", vida = 300, msPorPaso = 2000) {}  // TODO imagen propia: "zombieTanque"
-
-// Muy rápido pero con poca vida
-class ZombieRapido inherits Zombie(nombre = "zombie", vida = 50, msPorPaso = 500) {}    // TODO imagen propia: "zombieRapido"
-
 // ============================================================
 // GENERADOR: crea zombies de tipo y carril al azar, y avisa
 // al jardín cuando ya no queda ninguno de la oleada (victoria).
@@ -90,9 +82,9 @@ object generadorDeZombies {
 
   // cada "fábrica" sabe crear un tipo de zombie en la posición que le pasen
   const fabricas = [
-    { posicion => new ZombieNormal(position = posicion) },
-    { posicion => new ZombieTanque(position = posicion) },
-    { posicion => new ZombieRapido(position = posicion) }
+    { posicion => new Zombie(position = posicion, nombre = "zombie", vida = 100, msPorPaso = 1000) },
+    { posicion => new Zombie(position = posicion, nombre = "zombieCono", vida = 300, msPorPaso = 2000) },
+    { posicion => new Zombie(position = posicion, nombre = "zombieRapido", vida = 50, msPorPaso = 500) }
   ]
 
   method iniciar() {
@@ -118,7 +110,7 @@ object generadorDeZombies {
   method zombieEliminado(unZombie) {
     zombiesActivos.remove(unZombie)
     if (generados == totalAGenerar and zombiesActivos.isEmpty()) {
-      jardin.ganar()
+      jardin.cambiarEstado(victoria)
     }
   }
 }
