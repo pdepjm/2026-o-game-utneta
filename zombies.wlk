@@ -112,6 +112,7 @@ object generadorDeZombies {
     }
   }
 
+// Lo usan los lanzadores para decidir si disparan.
   method hayZombiesEnCarril(carril) = zombiesActivos.any({ z => z.carril() == carril })
 
   method zombieEliminado(unZombie) {
