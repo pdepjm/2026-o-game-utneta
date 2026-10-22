@@ -4,9 +4,10 @@ import jardin.*
 
 program PlantasVsZombies {
   game.width(12)
-  game.height(9)
+  game.height(7)
   game.cellSize(220)
   game.title("Plantas vs Zombies")
+  game.boardGround("jardin.png")
 
   jardin.iniciar()                // plantas iniciales (una por carril)
   generadorDeZombies.iniciar()    // empieza la oleada de zombies

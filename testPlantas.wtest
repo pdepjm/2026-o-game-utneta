@@ -1,3 +1,4 @@
+import plantas.*
 describe "Plantas"{
     const planta = new Lanzaguisantes(position = game.at(0, 2))
 
