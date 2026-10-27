@@ -12,5 +12,14 @@ program PlantasVsZombies {
   jardin.iniciar()                // plantas iniciales (una por carril)
   generadorDeZombies.iniciar()    // empieza la oleada de zombies
 
+  keyboard.p().onPressDo({
+    if(jardin.pausado()){
+      jardin.reanudar()
+    }
+    else{
+      jardin.pausar()
+    }
+  })
+
   game.start()
 }

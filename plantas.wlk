@@ -2,12 +2,6 @@ import wollok.game.*
 import zombies.*
 import jardin.*
 
-// ============================================================
-// PLANTAS
-// Planta (abstracta) -> Lanzador (abstracta) -> 3 plantas concretas.
-// Cada subclase solo redefine (override) lo que cambia.
-// ============================================================
-
 class Planta {
   var property position
   var vida
@@ -18,13 +12,12 @@ class Planta {
   method image() = nombre + ".png"
 
   method iniciar() {
-    game.onTick(msEntreAcciones, idTick, { self.accion() })
+    jardin.agregarTiks(idTick, msEntreAcciones, { bolita => bolita.accion() }, self)
   }
 
   method accion()   // abstracto: cada planta decide qué hace
 
-  // las plantas ignoran las bolitas (polimorfismo con Zombie)
-  method recibirImpacto(proyectil) {}
+  method recibirImpacto(proyectil) {} // las plantas ignoran las bolitas (polimorfismo con Zombie)
 
   method recibirDanio(cantidad) {
     vida -= cantidad
@@ -34,7 +27,7 @@ class Planta {
   }
 
   method morir() {
-    game.removeTickEvent(idTick)
+    jardin.eliminarTiks(idTick)
     game.removeVisual(self)
     jardin.plantasActivas.remove(self)
   }
@@ -95,7 +88,7 @@ class Bolita {
   method estaViva() = viva
 
   method iniciarMovimiento() {
-    game.onTick(400, idTick, { self.mover() })
+    jardin.agregarTiks(idTick, 400, { bolita => bolita.mover() }, self)
     game.onCollideDo(self, { otro => otro.recibirImpacto(self) })
   }
 
@@ -117,7 +110,7 @@ class Bolita {
   method morir() {
     if (viva) {
       viva = false
-      game.removeTickEvent(idTick)
+      jardin.eliminarTiks(idTick)
       game.removeVisual(self)
     }
   }

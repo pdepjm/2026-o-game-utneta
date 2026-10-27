@@ -23,7 +23,7 @@ class Zombie {
   method estaVivo() = vivo
 
   method iniciar() {
-    game.onTick(msPorPaso, idTick, { self.mover() })
+    jardin.agregarTiks(idTick, msPorPaso, { zombie => zombie.mover() }, self)
   }
 
   method mover() {
@@ -55,7 +55,7 @@ class Zombie {
     if (vivo and !ralentizado) {
       ralentizado = true
       msPorPaso = msPorPaso * 2
-      game.removeTickEvent(idTick)
+      jardin.eliminarTiks(idTick)
       self.iniciar()
     }
   }
@@ -63,7 +63,7 @@ class Zombie {
   method morir() {
     if (vivo) {
       vivo = false
-      game.removeTickEvent(idTick)
+      jardin.eliminarTiks(idTick)
       game.removeVisual(self)
       generadorDeZombies.zombieEliminado(self)
     }
@@ -88,8 +88,7 @@ object generadorDeZombies {
   ]
 
   method iniciar() {
-    self.generar()   // el primero aparece de entrada
-    game.onTick(msEntreZombies, "spawnZombies", { self.generar() })
+    jardin.agregarTiks("spawnZombies" + self.identity(), msEntreZombies, { generador => generador.generar() }, self)
   }
 
   method generar() {
@@ -100,7 +99,7 @@ object generadorDeZombies {
     nuevoZombie.iniciar()
     generados += 1
     if (generados == totalAGenerar) {
-      game.removeTickEvent("spawnZombies")   // ya no se generan más
+      jardin.eliminarTiks("spawnZombies"+self.identity())
     }
   }
 
