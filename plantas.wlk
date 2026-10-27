@@ -28,7 +28,17 @@ class Planta {
 
   method recibirDanio(cantidad) {
     vida -= cantidad
+    if (vida <= 0) {
+      self.morir()
+    }
   }
+
+  method morir() {
+    game.removeTickEvent(idTick)
+    game.removeVisual(self)
+    jardin.plantasActivas.remove(self)
+  }
+  
 }
 
 // Plantas que disparan proyectiles por su carril

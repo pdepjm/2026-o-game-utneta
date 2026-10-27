@@ -29,7 +29,7 @@ class Zombie {
   method mover() {
     position = position.left(1)
     if (position.x() <= 0) {      // llegó al final del carril
-      jardin.cambiarEstado(derrota)
+      jardin.finalizar(derrota)
     }
   }
 
@@ -110,7 +110,7 @@ object generadorDeZombies {
   method zombieEliminado(unZombie) {
     zombiesActivos.remove(unZombie)
     if (generados == totalAGenerar and zombiesActivos.isEmpty()) {
-      jardin.cambiarEstado(victoria)
+      jardin.finalizar(victoria)
     }
   }
 }
