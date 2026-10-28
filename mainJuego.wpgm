@@ -30,17 +30,24 @@ program PlantasVsZombies {
     generadorDeZombies.iniciar()
   })
 
-  // Mover el Seleccionador
+  // Mover el Seleccionador y realizar la accion con el click
+  game.onClickDo({  posicionClickeada => 
+      seleccionador.position(posicionClickeada)
+      seleccionador.plantar(posicionClickeada)
+  })
+
+  // mover el seleccionador y realizar la accion con teclas
   keyboard.up().onPressDo({seleccionador.moverArriba()})
   keyboard.down().onPressDo({seleccionador.moverAbajo()})
   keyboard.left().onPressDo({seleccionador.moverIzquierda()})
   keyboard.right().onPressDo({seleccionador.moverDerecha()})
-  keyboard.enter().onPressDo({seleccionador.plantar()})
+  keyboard.enter().onPressDo({seleccionador.plantar(seleccionador.position())})
 
   // Seleccion del tipo de planta
   keyboard.num1().onPressDo({seleccionador.seleccionarLanzaguisante()})
   keyboard.num2().onPressDo({seleccionador.seleccionarLansaguisantesCongelados()})
   keyboard.num3().onPressDo({seleccionador.seleccionarLansaguisantesDoble()})
-
+  // keyboard.del().onPressDo({seleccionador.eliminarPlanta(seleccionador.position())}) //  falta implementar(es para desplantar)
+  
   game.start()
 }

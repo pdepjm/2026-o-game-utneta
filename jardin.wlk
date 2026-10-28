@@ -116,7 +116,7 @@ class Ticks {
 
 object seleccionador {
   var property position = game.at(0,0)
-  var property eleccion = ""
+  var property eleccion = "vacio"
   method image() = "seleccionador.png"
   
   method seleccionarLanzaguisante(){
@@ -129,11 +129,12 @@ object seleccionador {
     eleccion = {posicion => new LanzaguisantesDoble(position = posicion)}
   }
 
-  method plantar(){
-    if(eleccion != "" and !jardin.espacioOcupado(position)){      
-      const plantaNueva = eleccion.apply(self.position())
+  method plantar(posicion){
+    position = posicion
+    if(eleccion != "vacio" and !jardin.espacioOcupado(posicion)){      
+      const plantaNueva = eleccion.apply(posicion)
       jardin.plantar(plantaNueva)
-      eleccion = ""
+      eleccion = "vacio"
     }
   }
 
