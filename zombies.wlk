@@ -16,14 +16,14 @@ class Zombie {
   var ralentizado = false
   var vivo = true
   const property danio = 10     // todavía sin usar (para cuando los zombies ataquen)
-  const idTik = "movimientoZombie" + self.identity()   // id único por zombie
+  const idTick = "movimientoZombie" + self.identity()   // id único por zombie
 
   method image() = nombre + ".png"
   method carril() = position.y()
   method estaVivo() = vivo
 
   method iniciar() {
-    jardin.agregarTiks(idTik, msPorPaso, { zombie => zombie.mover() }, self)
+    jardin.agregarTicks(idTick, msPorPaso, { zombie => zombie.mover() }, self)
   }
 
   method mover() {
@@ -55,7 +55,7 @@ class Zombie {
     if (vivo and !ralentizado) {
       ralentizado = true
       msPorPaso = msPorPaso * 2
-      jardin.eliminarTik(idTik)
+      jardin.eliminarTick(idTick)
       self.iniciar()
     }
   }
@@ -63,7 +63,7 @@ class Zombie {
   method morir() {
     if (vivo) {
       vivo = false
-      jardin.eliminarTik(idTik)
+      jardin.eliminarTick(idTick)
       game.removeVisual(self)
       generadorDeZombies.zombieEliminado(self)
     }
@@ -79,7 +79,7 @@ object generadorDeZombies {
   const totalAGenerar = 12        // tamaño de la oleada: al matarlos a todos se gana
   const msEntreZombies = 5000
   var property generados = 0
-  const tikID = "spawnZombies" + self.identity()
+  const tickID = "spawnZombies" + self.identity()
 
   // cada "fábrica" sabe crear un tipo de zombie en la posición que le pasen
   const fabricas = [
@@ -89,10 +89,10 @@ object generadorDeZombies {
   ]
 
   method iniciar() {
-    jardin.agregarTiks(tikID, msEntreZombies, { generador => generador.generar() }, self)
+    jardin.agregarTicks(tickID, msEntreZombies, { generador => generador.generar() }, self)
   }
   method pausar(){
-    jardin.eliminarTik(tikID)
+    jardin.eliminarTick(tickID)
   }
 
   method generar() {
@@ -103,7 +103,7 @@ object generadorDeZombies {
     nuevoZombie.iniciar()
     generados += 1
     if (generados == totalAGenerar) {
-      jardin.eliminarTik(tikID)
+      jardin.eliminarTick(tickID)
     }
   }
 

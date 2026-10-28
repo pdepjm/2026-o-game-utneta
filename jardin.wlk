@@ -6,8 +6,12 @@ object jardin {
   var property pausado = false
   const property carriles = [1, 2, 3]   // filas (y) por las que avanzan los zombies
   const plantasActivas = []
-  const tiksActivos = []
+  const ticksActivos = []
   const proyectilesActivos = []
+
+  method espacioOcupado(posicion) {
+    return plantasActivas.any({planta => planta.position() == posicion})
+  }
 
   method plantar(unaPlanta) {
     plantasActivas.add(unaPlanta)
@@ -37,28 +41,30 @@ object jardin {
     game.removeVisual(proyectil)
   }
 
-  method agregarTiks(idTik, intervalo, accionARealizar, objetoDestino) {
-    const nuevoTik = new Tiks(msAccion = intervalo, accion = accionARealizar, objeto = objetoDestino, idTick = idTik)
-    nuevoTik.iniciar()
-    tiksActivos.add(nuevoTik)
+  method agregarTicks(idTick, intervalo, accionARealizar, objetoDestino) {
+    const nuevoTick = new Ticks(msAccion = intervalo, accion = accionARealizar, objeto = objetoDestino, idTick = idTick)
+    nuevoTick.iniciar()
+    ticksActivos.add(nuevoTick)
   }
 
-  method eliminarTik(idTik) {
-    const tik = tiksActivos.find({tik => tik.idTick() == idTik})
-    tik.eliminar()        
-    tiksActivos.remove(tik)
+  method eliminarTick(idTick) {
+    const tick = ticksActivos.findOrDefault({t => t.idTick() == idTick}, null)
+    if (tick != null) {
+      tick.eliminar()        
+      ticksActivos.remove(tick)
+    }
   }
 
   method pausar(){
     pausado = true
     game.addVisual(pausa)
-    tiksActivos.forEach({ t => t.pausar() })
+    ticksActivos.forEach({ t => t.pausar() })
   }
 
   method reanudar(){
     pausado = false
     game.removeVisual(pausa)
-    tiksActivos.forEach({ t => t.reanudar() })
+    ticksActivos.forEach({ t => t.reanudar() })
   }
 
   method reiniciar(){
@@ -87,7 +93,7 @@ object derrota {
   method image() = "perdiste.png"
 }
 
-class Tiks {
+class Ticks {
   const property idTick
   var property msAccion
   var property accion
@@ -105,5 +111,44 @@ class Tiks {
 
   method reanudar(){
     self.iniciar()  }
+
+}
+
+object seleccionador {
+  var property position = game.at(0,0)
+  var property eleccion = ""
+  method image() = "seleccionador.png"
+  
+  method seleccionarLanzaguisante(){
+    eleccion = {posicion => new Lanzaguisantes(position = posicion)}
+  }
+  method seleccionarLansaguisantesCongelados(){
+    eleccion = {posicion => new LanzaguisantesHielo(position = posicion)}
+  }
+  method seleccionarLansaguisantesDoble(){
+    eleccion = {posicion => new LanzaguisantesDoble(position = posicion)}
+  }
+
+  method plantar(){
+    if(eleccion != "" and !jardin.espacioOcupado(position)){      
+      const plantaNueva = eleccion.apply(self.position())
+      jardin.plantar(plantaNueva)
+      eleccion = ""
+    }
+  }
+
+  method moverIzquierda() {
+    position = position.left(1)}
+
+  method moverDerecha(){ 
+    position = position.right(1)}
+
+  method moverArriba() {
+    position = position.up(1)}
+
+  method moverAbajo() {
+     position = position.down(1)}
+
+  method recibirImpacto(proyectil){} // necesario para el polimorfismo
 
 }

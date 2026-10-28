@@ -8,10 +8,12 @@ program PlantasVsZombies {
   game.cellSize(220)
   game.title("Plantas vs Zombies")
   game.boardGround("jardin.png")
+  game.addVisual(seleccionador)
 
   jardin.iniciar()                // plantas iniciales (una por carril)
   generadorDeZombies.iniciar()    // empieza la oleada de zombies
-
+  
+  // pausar el juego
   keyboard.p().onPressDo({
     if(jardin.pausado()){
       jardin.reanudar()
@@ -21,11 +23,24 @@ program PlantasVsZombies {
     }
   })
 
+  // reiniciar el juego
   keyboard.r().onPressDo({
     jardin.reiniciar()
     jardin.iniciar()
     generadorDeZombies.iniciar()
   })
+
+  // Mover el Seleccionador
+  keyboard.up().onPressDo({seleccionador.moverArriba()})
+  keyboard.down().onPressDo({seleccionador.moverAbajo()})
+  keyboard.left().onPressDo({seleccionador.moverIzquierda()})
+  keyboard.right().onPressDo({seleccionador.moverDerecha()})
+  keyboard.enter().onPressDo({seleccionador.plantar()})
+
+  // Seleccion del tipo de planta
+  keyboard.num1().onPressDo({seleccionador.seleccionarLanzaguisante()})
+  keyboard.num2().onPressDo({seleccionador.seleccionarLansaguisantesCongelados()})
+  keyboard.num3().onPressDo({seleccionador.seleccionarLansaguisantesDoble()})
 
   game.start()
 }

@@ -7,12 +7,12 @@ class Planta {
   var vida
   const property nombre
   const msEntreAcciones
-  const idTik = "accionPlanta" + self.identity()
+  const idTick = "accionPlanta" + self.identity()
 
   method image() = nombre + ".png"
 
   method iniciar() {
-    jardin.agregarTiks(idTik, msEntreAcciones, { bolita => bolita.accion() }, self)
+    jardin.agregarTicks(idTick, msEntreAcciones, { bolita => bolita.accion() }, self)
   }
 
   method accion()   // abstracto: cada planta decide qué hace
@@ -27,7 +27,7 @@ class Planta {
   }
 
   method morir() {
-    jardin.eliminarTik(idTik)
+    jardin.eliminarTick(idTick)
     jardin.eliminarPlanta(self)
   }
   
@@ -79,7 +79,7 @@ class LanzaguisantesDoble inherits Lanzador(nombre = "lanzaguisantes", vida = 10
 class Bolita {
   var property position
   var viva = true
-  const idTik = "movimientoBolita" + self.identity()   // id único por bolita
+  const idTick = "movimientoBolita" + self.identity()   // id único por bolita
 
   method nombre() = "guisante"
   method danio() = 25
@@ -87,7 +87,7 @@ class Bolita {
   method estaViva() = viva
 
   method iniciarMovimiento() {
-    jardin.agregarTiks(idTik, 400, { bolita => bolita.mover() }, self)
+    jardin.agregarTicks(idTick, 400, { bolita => bolita.mover() }, self)
     game.onCollideDo(self, { otro => otro.recibirImpacto(self) })
   }
 
@@ -109,7 +109,7 @@ class Bolita {
   method morir() {
     if (viva) {
       viva = false
-      jardin.eliminarTik(idTik)
+      jardin.eliminarTick(idTick)
       jardin.eliminarProyectil(self)
     }
   }
