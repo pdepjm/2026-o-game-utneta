@@ -1,51 +1,56 @@
-import plantas.*
-import zombies.*
 import wollok.game.*
 
 object jardin {
-  const property carriles = [1, 2, 3]   // filas (y) por las que avanzan los zombies
+  // zonas del tablero (12 x 7)
+  const property columnaCasa = 0           // si un zombie llega acá, perdiste
+  const columnasDePasto = 1..9             // solo acá se puede plantar (la 10 es la vereda)
+  const property columnaCalle = 11         // de acá salen los zombies
+  const property carriles = [0, 1, 2, 3, 4]   // filas por las que avanzan los zombies (la 5 es la cerca)
+  const property filaDelPanel = 6          // arriba de todo, para elegir plantas
   const plantasActivas = []
-  var terminada = false
+
+  method prepararTablero() {
+    game.width(columnaCalle + 1)
+    game.height(filaDelPanel + 1)
+    game.cellSize(220)
+    game.title("Plantas vs Zombies")
+    game.boardGround("fondo.png")   // mide 2640 x 1540: 12 x 7 celdas de 220
+  }
+
+  method reiniciar() {
+    plantasActivas.clear()
+  }
 
   method plantar(unaPlanta) {
+    self.validarQueSePuedePlantarEn(unaPlanta.position())
     plantasActivas.add(unaPlanta)
     game.addVisual(unaPlanta)
     unaPlanta.iniciar()
   }
 
-  // arma el jardín inicial: una planta distinta en cada carril, en la primera columna
-  method iniciar() {
-    self.plantar(new Lanzaguisantes(position = game.at(0, carriles.get(0))))
-    self.plantar(new LanzaguisantesHielo(position = game.at(0, carriles.get(1))))
-    self.plantar(new LanzaguisantesDoble(position = game.at(0, carriles.get(2))))
-  }
-
-  method ganar() {
-    self.terminar("¡GANASTE!", "009933FF")
-  }
-
-  method perder() {
-    self.terminar("PERDISTE", "FF0000FF")
-  }
-
-  method terminar(mensaje, color) {
-    if (!terminada) {     // varios zombies pueden llegar a la vez
-      terminada = true
-      game.clear()        // saca todos los visuales y frena todos los ticks/colisiones
-      cartelFinal.mostrar(mensaje, color)
+  method validarQueSePuedePlantarEn(posicion) {
+    if (!self.esPasto(posicion)) {
+      throw new NoSePuedePlantar(message = "Solo se puede plantar en el pasto", cartel = "avisoPasto.png")
     }
+    if (self.hayPlantaEn(posicion)) {
+      throw new NoSePuedePlantar(message = "Ya hay una planta acá", cartel = "avisoPlanta.png")
+    }
+  }
+
+  method esPasto(posicion) = columnasDePasto.contains(posicion.x()) and carriles.contains(posicion.y())
+
+  // los zombies no cuentan: se puede plantar donde hay un zombie
+  method hayPlantaEn(posicion) = plantasActivas.any({ planta => planta.position() == posicion })
+
+  method plantaEn(posicion) = plantasActivas.find({ planta => planta.position() == posicion })
+
+  method sacarPlanta(unaPlanta) {
+    plantasActivas.remove(unaPlanta)
   }
 }
 
-object cartelFinal {
-  var property text = ""
-  var property textColor = "000000FF"
-
-  method position() = game.center()
-
-  method mostrar(mensaje, color) {
-    text = mensaje
-    textColor = color
-    game.addVisual(self)
-  }
+// Lo que no te deja plantar. Además del mensaje, trae el cartel
+// que se muestra en grande en el juego.
+class NoSePuedePlantar inherits DomainException {
+  const property cartel
 }
