@@ -21,5 +21,11 @@ program PlantasVsZombies {
     }
   })
 
+  keyboard.r().onPressDo({
+    jardin.reiniciar()
+    jardin.iniciar()
+    generadorDeZombies.iniciar()
+  })
+
   game.start()
 }

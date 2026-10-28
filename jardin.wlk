@@ -7,6 +7,7 @@ object jardin {
   const property carriles = [1, 2, 3]   // filas (y) por las que avanzan los zombies
   const plantasActivas = []
   const tiksActivos = []
+  const proyectilesActivos = []
 
   method plantar(unaPlanta) {
     plantasActivas.add(unaPlanta)
@@ -16,6 +17,7 @@ object jardin {
 
   method eliminarPlanta(unaPlanta) {
     plantasActivas.remove(unaPlanta)
+    game.removeVisual(unaPlanta)
   }
 
   // arma el jardín inicial: una planta distinta en cada carril, en la primera columna
@@ -25,16 +27,26 @@ object jardin {
     self.plantar(new LanzaguisantesDoble(position = game.at(0, carriles.get(2))))
   }
 
-  method agregarTiks(idTick, intervalo, accionARealizar, objetoDestino) {
-    const nuevoTik = new Tiks(msAccion = intervalo, accion = accionARealizar, objeto = objetoDestino, idTick = idTick)
+  method agregarProyectil(nuevoProyectil){
+    proyectilesActivos.add(nuevoProyectil)
+    game.addVisual(nuevoProyectil)
+  }
+
+  method eliminarProyectil(proyectil){
+    proyectilesActivos.remove(proyectil)
+    game.removeVisual(proyectil)
+  }
+
+  method agregarTiks(idTik, intervalo, accionARealizar, objetoDestino) {
+    const nuevoTik = new Tiks(msAccion = intervalo, accion = accionARealizar, objeto = objetoDestino, idTick = idTik)
     nuevoTik.iniciar()
     tiksActivos.add(nuevoTik)
   }
 
-  method eliminarTiks(idTick) {
-    const aEliminar = tiksActivos.filter({ t => t.idTick() == idTick })
-    aEliminar.forEach({ t => t.eliminar() }) 
-    tiksActivos.removeAll(aEliminar)        
+  method eliminarTik(idTik) {
+    const tik = tiksActivos.find({tik => tik.idTick() == idTik})
+    tik.eliminar()        
+    tiksActivos.remove(tik)
   }
 
   method pausar(){
@@ -49,21 +61,29 @@ object jardin {
     tiksActivos.forEach({ t => t.reanudar() })
   }
 
+  method reiniciar(){
+    plantasActivas.forEach({planta => planta.morir()})
+    generadorDeZombies.zombiesActivos().forEach({zombie => zombie.morir()})
+    proyectilesActivos.forEach({proyectil => proyectil.morir()})
+    generadorDeZombies.generados(0)
+    if(pausado){self.reanudar()}
+  }
+
   method finalizar(motivo) {        
-    game.clear()
+    self.pausar()
     game.addVisual(motivo)
   }
 }
 object victoria {
-  method position() = game.center()
+  method position() = game.at(4,4)
   method image() = "ganaste.png"
 }
 object pausa{
-  method position() = game.center()
+  method position() = game.at(4,4)
   method image() = "pausa.png" // falta hacerlo
 }
 object derrota {
-  method position() = game.center()
+  method position() = game.at(4,4)
   method image() = "perdiste.png"
 }
 
