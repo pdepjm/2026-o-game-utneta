@@ -1,18 +1,7 @@
 import wollok.game.*
-import zombies.*
-import jardin.*
+import juego.*
 
 program PlantasVsZombies {
-  game.width(12)
-  game.height(8)
-  game.cellSize(220)
-  game.title("Plantas vs Zombies")
-
-  jardin.iniciar()                // plantas iniciales (una por carril)
-  generadorDeZombies.iniciar()    // empieza la oleada de zombies
-
+  juego.iniciar()   // prepara el tablero y muestra el menú
   game.start()
 }
-
-
-//HOLA PRUEBO MI BRANCH//
