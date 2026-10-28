@@ -120,13 +120,19 @@ object seleccionador {
   method image() = "seleccionador.png"
   
   method seleccionarLanzaguisante(){
+    selector.position(game.at(0,6))
     eleccion = {posicion => new Lanzaguisantes(position = posicion)}
+    game.addVisual(selector)
   }
   method seleccionarLansaguisantesCongelados(){
+    selector.position(game.at(1,6))
     eleccion = {posicion => new LanzaguisantesHielo(position = posicion)}
+    game.addVisual(selector)
   }
   method seleccionarLansaguisantesDoble(){
+    selector.position(game.at(2,6))
     eleccion = {posicion => new LanzaguisantesDoble(position = posicion)}
+    game.addVisual(selector)
   }
 
   method plantar(posicion){
@@ -135,6 +141,7 @@ object seleccionador {
       const plantaNueva = eleccion.apply(posicion)
       jardin.plantar(plantaNueva)
       eleccion = "vacio"
+      game.removeVisual(selector)
     }
   }
 
@@ -152,4 +159,9 @@ object seleccionador {
 
   method recibirImpacto(proyectil){} // necesario para el polimorfismo
 
+}
+
+object selector{ // objeto utilizado para mostrar que opcion se selecciono para plantar
+  var property position = game.origin()
+  method image() = "selector.png"
 }
