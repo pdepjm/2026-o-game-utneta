@@ -84,7 +84,7 @@ object generadorDeZombies {
   // cada "fábrica" sabe crear un tipo de zombie en la posición que le pasen
   const fabricas = [
     { posicion => new Zombie(position = posicion, nombre = "zombie", vida = 100, msPorPaso = 1000) },
-    { posicion => new Zombie(position = posicion, nombre = "zombieCono", vida = 300, msPorPaso = 2000) },
+    { posicion => new Zombie(position = posicion, nombre = "zombieTanque", vida = 300, msPorPaso = 2000) },
     { posicion => new Zombie(position = posicion, nombre = "zombieRapido", vida = 50, msPorPaso = 500) }
   ]
 
