@@ -1,0 +1,7 @@
+import wollok.game.*
+import juego.*
+
+program PlantasVsZombies {
+  juego.iniciar()   // prepara el tablero y muestra el menú
+  game.start()
+}

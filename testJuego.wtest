@@ -1,0 +1,243 @@
+import wollok.game.*
+import plantas.*
+import zombies.*
+import jardin.*
+import juego.*
+import vivero.*
+import soles.*
+import reloj.*
+
+// En los tests el tablero arranca en 5x5 (no se ejecuta mainJuego),
+// por eso en cada describe lo preparamos igual que en el juego.
+
+describe "zombies y bolitas" {
+  const zombie = zombieNormal.crearEn(game.at(5, 1))
+
+  method initialize() {
+    jardin.prepararTablero()
+    game.addVisual(zombie)
+  }
+
+  // le pega al zombie como si le hubieran llegado esa cantidad de guisantes
+  method dispararGuisantes(unZombie, cantidad) {
+    cantidad.times({ i => unZombie.recibirImpacto(new Bolita(position = unZombie.position())) })
+  }
+
+  // el reloj del juego avanza de a 100 ms
+  method pasarTiempo(milisegundos) {
+    milisegundos.div(100).times({ i => reloj.tic() })
+  }
+
+  test "un zombie normal muere con 4 guisantes" {
+    self.dispararGuisantes(zombie, 3)
+    assert.that(zombie.estaVivo())
+    self.dispararGuisantes(zombie, 1)
+    assert.notThat(zombie.estaVivo())
+  }
+
+  test "un zombie tanque aguanta más guisantes que uno normal" {
+    const tanque = zombieTanque.crearEn(game.at(5, 2))
+    game.addVisual(tanque)
+    self.dispararGuisantes(zombie, 4)
+    self.dispararGuisantes(tanque, 4)
+    assert.notThat(zombie.estaVivo())
+    assert.that(tanque.estaVivo())
+  }
+
+  test "una bolita desaparece cuando choca con un zombie" {
+    const bolita = new Bolita(position = game.at(4, 1))
+    game.addVisual(bolita)
+    bolita.iniciarMovimiento()
+    self.pasarTiempo(400)   // la bolita avanza a la celda del zombie
+    assert.notThat(bolita.estaViva())
+    assert.notThat(game.hasVisual(bolita))
+  }
+
+  test "una planta ignora las bolitas que le pasan por encima" {
+    const planta = new Lanzaguisantes(position = game.at(0, 2))
+    const bolita = new Bolita(position = game.at(0, 2))
+    planta.recibirImpacto(bolita)
+    assert.that(bolita.estaViva())
+  }
+
+  test "la bolita de hielo también hace daño" {
+    const rapido = zombieRapido.crearEn(game.at(5, 2))   // tiene 50 de vida
+    game.addVisual(rapido)
+    rapido.recibirImpacto(new BolitaHielo(position = rapido.position()))
+    rapido.recibirImpacto(new BolitaHielo(position = rapido.position()))
+    assert.notThat(rapido.estaVivo())
+  }
+
+  test "la bolita de hielo hace que el zombie camine más lento" {
+    zombie.iniciar()
+    zombie.recibirImpacto(new BolitaHielo(position = zombie.position()))
+    self.pasarTiempo(2000)   // a este tiempo un zombie normal ya hubiera dado un paso
+    assert.equals(game.at(5, 1), zombie.position())
+    self.pasarTiempo(2000)
+    assert.equals(game.at(4, 1), zombie.position())
+  }
+
+  test "si lo ralentizan dos veces no se frena más" {
+    zombie.iniciar()
+    zombie.ralentizar()
+    zombie.ralentizar()
+    self.pasarTiempo(4000)   // con un solo ralentizado da un paso cada 4000 ms
+    assert.equals(game.at(4, 1), zombie.position())
+  }
+
+  test "un zombie normal se come una planta en 5 mordidas" {
+    jardin.plantar(new Lanzaguisantes(position = game.at(4, 1)))   // justo adelante del zombie
+    4.times({ i => zombie.mover() })
+    assert.equals(game.at(5, 1), zombie.position())   // mientras come no avanza
+    assert.that(jardin.hayPlantaEn(game.at(4, 1)))
+    zombie.mover()
+    assert.notThat(jardin.hayPlantaEn(game.at(4, 1)))
+  }
+}
+
+describe "plantas" {
+  method initialize() {
+    jardin.prepararTablero()
+    // un zombie en el carril 2: lo anotamos en el generador pero no lo agregamos al tablero,
+    // así los únicos visuales que aparecen son las bolitas que disparan las plantas
+    generadorDeZombies.zombiesActivos().add(zombieNormal.crearEn(game.at(8, 2)))
+  }
+
+  test "un lanzaguisantes dispara si hay un zombie en su carril" {
+    const planta = new Lanzaguisantes(position = game.at(0, 2))
+    planta.accion()
+    assert.equals(1, game.allVisuals().size())
+  }
+
+  test "un lanzaguisantes no dispara si el zombie está en otro carril" {
+    const planta = new Lanzaguisantes(position = game.at(0, 1))
+    planta.accion()
+    assert.that(game.allVisuals().isEmpty())
+  }
+
+  test "el lanzaguisantes doble dispara dos bolitas" {
+    const planta = new LanzaguisantesDoble(position = game.at(0, 2))
+    planta.accion()
+    assert.equals(2, game.allVisuals().size())
+  }
+}
+
+describe "estados del juego" {
+  method initialize() {
+    juego.iniciar()   // prepara el tablero y muestra el menú, como al abrir el juego
+  }
+
+  test "al hacer click en OK empieza la partida" {
+    menuInicio.click(game.at(6, 1))   // el botón ocupa las celdas (5, 1) y (6, 1)
+    assert.notThat(game.hasVisual(menuInicio))
+    assert.that(game.hasVisual(panel))   // ya se puede plantar
+  }
+
+  test "si un zombie llega a la casa se pierde" {
+    juego.cambiarEstado(jugando)
+    const zombie = zombieNormal.crearEn(game.at(1, 1))
+    game.addVisual(zombie)
+    zombie.mover()
+    assert.that(game.hasVisual(perdiste))
+  }
+
+  test "al eliminar una oleada se pasa a la siguiente" {
+    juego.cambiarEstado(jugando)
+    6.times({ i => generadorDeZombies.generar() })   // los 6 de la primera oleada
+    // copy() porque cada zombie que muere se saca de la lista que estamos recorriendo
+    generadorDeZombies.zombiesActivos().copy().forEach({ zombie => zombie.morir() })
+    assert.equals(2, generadorDeZombies.numeroDeOleada())
+    assert.notThat(game.hasVisual(ganaste))
+  }
+
+  test "al eliminar la última oleada se gana" {
+    juego.cambiarEstado(jugando)
+    generadorDeZombies.numeroDeOleada(3)              // vamos directo a la última
+    12.times({ i => generadorDeZombies.generar() })   // los 12 de la última oleada
+    generadorDeZombies.zombiesActivos().copy().forEach({ zombie => zombie.morir() })
+    assert.that(game.hasVisual(ganaste))
+  }
+
+  test "reintentar empieza una partida desde cero" {
+    juego.cambiarEstado(jugando)
+    3.times({ i => generadorDeZombies.generar() })
+    juego.perder()
+    perdiste.click(game.at(5, 1))
+    assert.notThat(game.hasVisual(perdiste))
+    assert.that(generadorDeZombies.zombiesActivos().isEmpty())   // no quedan los de la partida anterior
+  }
+}
+
+describe "plantar" {
+  method initialize() {
+    juego.iniciar()
+    juego.cambiarEstado(jugando)
+  }
+
+  test "no se puede plantar encima de otra planta" {
+    vivero.plantarEn(game.at(3, 2))
+    jugando.elegir(vivero.opciones().get(1))   // como apretar la tecla 2: esa planta no se está recargando
+    assert.throwsExceptionWithMessage("Ya hay una planta acá", { vivero.plantarEn(game.at(3, 2)) })
+  }
+
+  test "después de plantar hay que esperar la recarga" {
+    vivero.plantarEn(game.at(3, 2))
+    assert.throwsExceptionWithMessage("Todavía se está recargando", { vivero.plantarEn(game.at(4, 2)) })
+  }
+}
+
+describe "soles" {
+  method initialize() {
+    juego.iniciar()
+    juego.cambiarEstado(jugando)   // la partida arranca con 150 soles
+  }
+
+  test "plantar gasta soles y si no alcanzan no se puede" {
+    jugando.elegir(vivero.opciones().get(2))   // el doble cuesta 125
+    vivero.plantarEn(game.at(3, 2))
+    assert.equals(25, soles.cantidad())
+    jugando.elegir(vivero.opciones().first())   // el lanzaguisantes cuesta 50
+    assert.throwsExceptionWithMessage("No te alcanzan los soles", { vivero.plantarEn(game.at(4, 2)) })
+  }
+
+  test "al eliminar un zombie se ganan soles" {
+    generadorDeZombies.generar()
+    generadorDeZombies.zombiesActivos().first().morir()
+    assert.equals(175, soles.cantidad())
+  }
+}
+
+describe "pausa" {
+  var tiempo = 0
+
+  method initialize() {
+    juego.iniciar()
+    juego.cambiarEstado(jugando)   // el primer zombie sale a los 2,5 segundos
+  }
+
+  // como en el juego de verdad: el reloj de Wollok avanza y nuestro reloj hace un tic cada 100 ms
+  method esperar(milisegundos) {
+    milisegundos.div(100).times({ i =>
+      tiempo += 100
+      game.flushEvents(tiempo)
+    })
+  }
+
+  test "en pausa no pasa el tiempo, y al continuar sigue" {
+    jugando.apretarPausa()   // como apretar la P
+    self.esperar(3000)
+    assert.that(generadorDeZombies.zombiesActivos().isEmpty())
+    pausa.click(game.at(4, 2))   // botón continuar
+    self.esperar(3000)
+    assert.equals(1, generadorDeZombies.zombiesActivos().size())
+  }
+
+  test "desde la pausa se puede reiniciar la partida" {
+    vivero.plantarEn(game.at(3, 2))
+    jugando.apretarPausa()
+    pausa.click(game.at(6, 2))   // botón reiniciar
+    assert.notThat(game.hasVisual(pausa))
+    assert.notThat(jardin.hayPlantaEn(game.at(3, 2)))
+    assert.equals(150, soles.cantidad())
+  }
+}
