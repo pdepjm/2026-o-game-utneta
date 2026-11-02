@@ -3,18 +3,12 @@ import zombies.*
 import jardin.*
 import reloj.*
 
-// ============================================================
-// PLANTAS
-// Planta (abstracta) -> Lanzador (abstracta) -> Lanzaguisantes y LanzaguisantesHielo.
-// LanzaguisantesDoble hereda de Lanzaguisantes: crea la misma bolita, pero tira dos.
-// Cada subclase solo redefine (override) lo que cambia.
-// ============================================================
 
 class Planta {
   var property position
   var vida = 100
   const property nombre
-  const msEntreAcciones = 2000   // las plantas más lentas lo cambian al heredar
+  const msEntreAcciones = 2000  
   const tarea = new Tarea(milisegundos = msEntreAcciones, accion = { self.accion() })
 
   method image() = nombre + ".png"
@@ -25,7 +19,7 @@ class Planta {
 
   method accion()   // abstracto: cada planta decide qué hace
 
-  // las plantas ignoran las bolitas (polimorfismo con Zombie)
+  
   method recibirImpacto(proyectil) {}
 
   method recibirDanio(cantidad) {
@@ -43,7 +37,7 @@ class Planta {
   }
 }
 
-// Plantas que disparan proyectiles por su carril
+
 class Lanzador inherits Planta {
   method crearProyectil(posicion)   // abstracto: cada lanzador decide qué proyectil crea
 
@@ -80,9 +74,7 @@ class LanzaguisantesDoble inherits Lanzaguisantes(nombre = "lanzaguisantesDoble"
   }
 }
 
-// ============================================================
-// PROYECTILES
-// ============================================================
+
 
 class Bolita {
   var property position
@@ -115,12 +107,12 @@ class Bolita {
     game.colliders(self).forEach({ otro => otro.recibirImpacto(self) })
   }
 
-  // efecto sobre el zombie que impactó (las subclases pueden agregar efectos)
+  
   method impactar(zombie) {
     zombie.recibirDanio(self.danio())
   }
 
-  // dos bolitas en la misma celda no se afectan
+  // dos bolitas en la misma celda no se afectan (Polimorfismo)
   method recibirImpacto(otraBolita) {}
 
   method morir() {
@@ -135,7 +127,6 @@ class Bolita {
 class BolitaHielo inherits Bolita {
   override method nombre() = "guisanteDeHielo"
 
-  // además del daño de cualquier bolita, lo ralentiza
   override method impactar(zombie) {
     zombie.ralentizar()
     super(zombie)

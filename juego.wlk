@@ -5,9 +5,7 @@ import vivero.*
 import soles.*
 import reloj.*
 
-// ============================================================
-// JUEGO: sabe en qué estado está la partida y le delega todo
-// ============================================================
+
 object juego {
   var estado = menuInicio
 
@@ -18,9 +16,9 @@ object juego {
 
   method cambiarEstado(nuevoEstado) {
     estado = nuevoEstado
-    reloj.detener()              // lo que quedaba pendiente de antes no se hace más
-    game.clear()                 // saca visuales y ticks, pero también el teclado y el click...
-    self.configurarControles()   // ...por eso los volvemos a registrar cada vez
+    reloj.detener()              
+    game.clear()                 
+    self.configurarControles()   
     estado.empezar()
   }
 
@@ -33,7 +31,7 @@ object juego {
     keyboard.p().onPressDo({ estado.apretarPausa() })
   }
 
-  // la pausa no hace game.clear(): el jardín queda como está y el menú de pausa va encima
+  
   method pausar() {
     estado = pausa
     pausa.empezar()
@@ -53,11 +51,9 @@ object juego {
   }
 }
 
-// ============================================================
-// ESTADOS DEL JUEGO: lo que un estado no redefine, no hace nada
-// ============================================================
+
 class EstadoDelJuego {
-  method empezar()   // abstracto: qué pasa al entrar al estado
+  method empezar()   
 
   method click(posicion) {}
   method elegir(opcion) {}
@@ -86,8 +82,7 @@ object jugando inherits EstadoDelJuego {
     }
   }
 
-  // si no se puede plantar, el problema aparece en un cartel grande
-  // (el globito de Wollok es muy chiquito y no se lee)
+
   method plantarEn(posicion) {
     try {
       vivero.plantarEn(posicion)
@@ -113,8 +108,7 @@ object jugando inherits EstadoDelJuego {
   }
 }
 
-// El menú, los carteles de ganaste y perdiste y la pausa son iguales:
-// una imagen grande y sus botones
+
 class Pantalla inherits EstadoDelJuego {
   const property image
   const botones
@@ -136,8 +130,7 @@ object ganaste inherits Pantalla(image = "ganaste.png", botones = [botonReintent
 
 object perdiste inherits Pantalla(image = "perdiste.png", botones = [botonReintentar]) {}
 
-// La pausa va encima del jardín sin borrarlo (oscurece todo el tablero)
-// y frena el reloj, así todo se queda quieto hasta que sigas
+
 object pausa inherits Pantalla(image = "pausa.png", botones = [botonContinuar, botonReiniciar], position = game.at(0, 0)) {
   override method empezar() {
     reloj.pausar()
@@ -155,10 +148,7 @@ object pausa inherits Pantalla(image = "pausa.png", botones = [botonContinuar, b
   }
 }
 
-// ============================================================
-// BOTONES: ocupan 2 celdas. Si no dicen otra cosa, empiezan una
-// partida nueva.
-// ============================================================
+
 class Boton {
   const property image
   const property position = game.at(5, 1)
@@ -188,7 +178,7 @@ object botonContinuar inherits Boton(image = "botonContinuar.png", position = ga
 
 object botonReiniciar inherits Boton(image = "botonReiniciar.png", position = game.at(6, 2)) {}
 
-// el botón de la barra de arriba para pausar (con la P también se puede)
+
 object botonPausa {
   const property position = game.at(11, jardin.filaDelPanel())
   method image() = "botonPausa.png"

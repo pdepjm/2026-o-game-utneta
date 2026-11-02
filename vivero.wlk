@@ -4,9 +4,7 @@ import jardin.*
 import soles.*
 import reloj.*
 
-// ============================================================
-// VIVERO: las plantas que puede elegir el jugador en el panel
-// ============================================================
+
 object vivero {
   const property opciones = [
     new OpcionDePlanta(numero = 1, nombre = "lanzaguisantes", costo = 50, segundosDeRecarga = 3, nuevaPlanta = { posicion => new Lanzaguisantes(position = posicion) }),
@@ -32,15 +30,15 @@ object vivero {
 }
 
 class OpcionDePlanta {
-  const property numero      // tecla con la que se elige y lugar en el panel
-  const nombre               // la tarjeta del panel es nombre + "Tarjeta.png"
-  const costo                // en soles
+  const property numero      
+  const nombre               
+  const costo                
   const segundosDeRecarga
-  const nuevaPlanta          // bloque que crea la planta en la posición que le pasen
+  const nuevaPlanta          
   var recarga = disponible
 
   const property position = game.at(numero, jardin.filaDelPanel())
-  // si no alcanzan los soles, la tarjeta se ve gris
+  
   method image() = if (soles.alcanzan(costo)) nombre + "Tarjeta.png" else nombre + "TarjetaGris.png"
 
   method plantarEn(posicion) {
@@ -57,20 +55,16 @@ class OpcionDePlanta {
   }
 }
 
-// ============================================================
-// RECARGA: estados de cada opción, como la ralentización del zombie
-// ============================================================
 
-// lista para plantar
 object disponible {
   method validarQueSePuedePlantar() {}
 }
 
-// se dibuja arriba de la tarjeta con los segundos que faltan
+
 class Recargando {
   const opcion
   var segundos
-  const property position = opcion.position()   // arriba de la tarjeta de su planta
+  const property position = opcion.position()  
   const tarea = new Tarea(milisegundos = 1000, accion = { self.pasarUnSegundo() })
 
   method image() = "recarga" + segundos + ".png"
@@ -94,25 +88,23 @@ class Recargando {
   }
 }
 
-// ============================================================
-// VISUALES DEL PANEL
-// ============================================================
+
 object panel {
   const property position = game.at(0, jardin.filaDelPanel())
   method image() = "panel.png"
 }
 
-// se dibuja arriba de la tarjeta elegida
+
 object marcoDeSeleccion {
   method position() = vivero.elegida().position()
   method image() = "marco.png"
 }
 
-// Cartel grande con lo que no te deja plantar. Se va solo al rato.
+
 object cartelDeAviso {
   var property image = "avisoPasto.png"
 
-  const property position = game.at(2, 5)   // arriba del jardín, sobre la cerca
+  const property position = game.at(2, 5)   
 
   method mostrar(unCartel) {
     image = unCartel

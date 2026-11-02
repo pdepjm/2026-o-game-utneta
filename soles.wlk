@@ -2,13 +2,10 @@ import wollok.game.*
 import jardin.*
 import reloj.*
 
-// ============================================================
-// SOLES: hacen falta para plantar. Se juntan solos con el
-// tiempo y también al eliminar zombies.
-// ============================================================
+
 object soles {
   const solesAlEmpezar = 150
-  const maximo = 999               // el contador tiene 3 dígitos
+  const maximo = 999              
   var property cantidad = 0
   const digitos = [
     new DigitoDeSoles(columna = 4, divisor = 100),
@@ -40,10 +37,7 @@ object soles {
   }
 }
 
-// ============================================================
-// CONTADOR: la tabla de 3 celdas con el sol y, encima, un
-// dígito por celda
-// ============================================================
+
 object contadorDeSoles {
   const property position = game.at(4, jardin.filaDelPanel())
   method image() = "contadorDeSoles.png"
@@ -51,7 +45,7 @@ object contadorDeSoles {
 
 class DigitoDeSoles {
   const columna
-  const divisor      // 100 muestra las centenas, 10 las decenas y 1 las unidades
+  const divisor      
 
   const property position = game.at(columna, jardin.filaDelPanel())
   method image() = "numero" + soles.cantidad().div(divisor) % 10 + ".png"

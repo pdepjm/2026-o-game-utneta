@@ -14,7 +14,7 @@ object jardin {
     game.height(filaDelPanel + 1)
     game.cellSize(220)
     game.title("Plantas vs Zombies")
-    game.boardGround("fondo.png")   // mide 2640 x 1540: 12 x 7 celdas de 220
+    game.boardGround("fondo.png")
   }
 
   method reiniciar() {
@@ -39,7 +39,7 @@ object jardin {
 
   method esPasto(posicion) = columnasDePasto.contains(posicion.x()) and carriles.contains(posicion.y())
 
-  // los zombies no cuentan: se puede plantar donde hay un zombie
+ 
   method hayPlantaEn(posicion) = plantasActivas.any({ planta => planta.position() == posicion })
 
   method plantaEn(posicion) = plantasActivas.find({ planta => planta.position() == posicion })
@@ -49,8 +49,7 @@ object jardin {
   }
 }
 
-// Lo que no te deja plantar. Además del mensaje, trae el cartel
-// que se muestra en grande en el juego.
+
 class NoSePuedePlantar inherits DomainException {
   const property cartel
 }
