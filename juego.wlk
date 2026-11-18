@@ -55,11 +55,11 @@ object juego {
 class EstadoDelJuego {
   method empezar()   
 
-  method click(posicion) {}
-  method elegir(opcion) {}
-  method apretarPausa() {}
-  method ganar() {}
-  method perder() {}
+  method click(posicion) 
+  method elegir(opcion) 
+  method apretarPausa() 
+  method ganar() 
+  method perder() 
 }
 
 object jugando inherits EstadoDelJuego {
@@ -119,6 +119,12 @@ class Pantalla inherits EstadoDelJuego {
     botones.forEach({ boton => game.addVisual(boton) })
   }
 
+  
+  override method elegir(opcion) {}
+  override method apretarPausa() {}
+  override method ganar() {}
+  override method perder() {}
+
   override method click(posicion) {
     botones.forEach({ boton => boton.clickEn(posicion) })
   }
@@ -126,7 +132,7 @@ class Pantalla inherits EstadoDelJuego {
 
 object menuInicio inherits Pantalla(image = "menu.png", botones = [botonOk]) {}
 
-object ganaste inherits Pantalla(image = "ganaste.png", botones = [botonReintentar]) {}
+object ganaste inherits Pantalla(image = "ganaste.png", botones = [botonReintentar])  {}
 
 object perdiste inherits Pantalla(image = "perdiste.png", botones = [botonReintentar]) {}
 
