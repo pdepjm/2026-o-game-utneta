@@ -119,11 +119,6 @@ class Pantalla inherits EstadoDelJuego {
     botones.forEach({ boton => game.addVisual(boton) })
   }
 
-  
-  override method elegir(opcion) {}
-  override method apretarPausa() {}
-  override method ganar() {}
-  override method perder() {}
 
   override method click(posicion) {
     botones.forEach({ boton => boton.clickEn(posicion) })
